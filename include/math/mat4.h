@@ -17,8 +17,6 @@ namespace math {
 	public:
 
 		mat4() {
-			this->h = new float[16];
-
 			this->h[ 0] = 1.0f; this->h[ 4] = 0.0f; this->h[ 8] = 0.0f; this->h[12] = 0.0f;
 			this->h[ 1] = 0.0f; this->h[ 5] = 1.0f; this->h[ 9] = 0.0f; this->h[13] = 0.0f;
 			this->h[ 2] = 0.0f; this->h[ 6] = 0.0f; this->h[10] = 1.0f; this->h[14] = 0.0f;
@@ -28,8 +26,6 @@ namespace math {
 			float const &b1,float const &b2,float const &b3,float const &b4,
 			float const &c1,float const &c2,float const &c3,float const &c4,
 			float const &d1,float const &d2,float const &d3,float const &d4) {
-				this->h = new float[16];
-
 				this->h[ 0] = a1;
 				this->h[ 1] = b1;
 				this->h[ 2] = c1;
@@ -49,9 +45,6 @@ namespace math {
 				this->h[13] = b4;
 				this->h[14] = c4;
 				this->h[15] = d4;
-		}
-		virtual ~mat4() {
-			delete[] this->h;
 		}
 
 		mat4 operator*(mat4 const &other) const {
@@ -138,7 +131,7 @@ namespace math {
 		}
 
 	private:
-		float *h;
+		float h[16];
 	};
 }
 

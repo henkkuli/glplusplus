@@ -4,26 +4,21 @@ namespace math {
 	class vec3;
 }
 
-#include "mat4.h"
+#include <math.h>
 
 namespace math {
 	class vec3
 	{
 	public:
 		vec3() {
-			this->h = new float[3];
 			this->h[0] = 0.0f;
 			this->h[1] = 0.0f;
 			this->h[2] = 0.0f;
 		}
 		vec3(float const &x, float const &y, float const &z) {
-			this->h = new float[3];
 			this->h[0] = x;
 			this->h[1] = y;
 			this->h[2] = z;
-		}
-		virtual ~vec3() {
-			delete[] this->h;
 		}
 
 		float length() const {
@@ -79,7 +74,7 @@ namespace math {
 		}
 
 	private:
-		float *h;
+		float h[3];
 
 		friend class mat4;
 	};
