@@ -4,6 +4,8 @@
 
 #include "shader.h"
 #include "program.h"
+#include "vbo.h"
+#include "vao.h"
 
 using namespace std;
 
@@ -44,12 +46,11 @@ void stopGL() {
 void exit() {
 	stopGL();
 }
- float points[] = {
-	0.0f,  0.5f,  0.0f,
-	0.5f, -0.5f,  0.0f,
-	-0.5f, -0.5f,  0.0f
+ vec3 points[] = {
+	vec3(0.0f,  0.5f,  0.0f),
+	vec3(0.5f, -0.5f,  0.0f),
+	vec3(-0.5f, -0.5f,  0.0f)
 };
- unsigned int vbo = 0, vao = 0,p=0;
 
 void test() {
 }
@@ -66,24 +67,21 @@ int main() {
 		p.attachShader(f);
 		p.compile();
 
-		// TODO Remove
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), points,GL_STATIC_DRAW);
-
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		vbo vbo(3);
+		vbo.setData(points, 3);
+		vao vao;
+		vao.setVbo(0, vbo);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			p.use();
-			glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			vao.bind();
+
+			glEnable (GL_PROGRAM_POINT_SIZE);
+			glDrawArrays(GL_POINTS, 0, 3);
+			glDisable(GL_PROGRAM_POINT_SIZE);
 
 			glfwPollEvents();
 			glfwSwapBuffers(window);
