@@ -44,7 +44,17 @@ public:
 	void compile() {
 		glLinkProgram(this->glProgram);
 
-		// TODO Check log!!!
+		GLint linked = GL_FALSE;
+		glGetProgramiv(this->glProgram, GL_LINK_STATUS, &linked);
+		int logLength;
+		glGetProgramiv(this->glProgram, GL_INFO_LOG_LENGTH, &logLength);
+		char *log = new char[logLength];
+		glGetProgramInfoLog(this->glProgram, logLength, 0, log);
+		if (!linked) {
+			glDeleteProgram(this->glProgram);
+			throw log;
+		}
+		delete[] log;
 	}
 
 private:
