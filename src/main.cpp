@@ -59,8 +59,8 @@ int main() {
 		initGL();
 		atexit(exit);
 		
-		shader v("defaultShader.v", vertexShader);
-		shader f("defaultShader.f", fragmentShader);
+		shader v("shaders/defaultShader.v", vertexShader);
+		shader f("shaders/defaultShader.f", fragmentShader);
 		program p;
 		p.attachShader(v);
 		p.attachShader(f);
