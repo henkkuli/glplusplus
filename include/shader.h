@@ -11,7 +11,9 @@ using namespace std;
 
 enum shaderType {
 	vertexShader = GL_VERTEX_SHADER,
-	fragmentShader = GL_FRAGMENT_SHADER
+	fragmentShader = GL_FRAGMENT_SHADER,
+	computeShader = GL_COMPUTE_SHADER,
+	geometryShader = GL_GEOMETRY_SHADER
 };
 
 class shader {
