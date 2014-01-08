@@ -6,3 +6,4 @@
 
 #define INFO(format, ...) \
 	printf(FILESTRING "#" LINESTRING ": " format "\n", __VA_ARGS__);
+

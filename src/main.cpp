@@ -1,6 +1,7 @@
-#include <gl\glew.h>
-#include <gl\glfw3.h>
+#include <GL/glew.h>
+#include <GL/glfw3.h>
 #include <iostream>
+#include <stdlib.h>
 
 #include "shader.h"
 #include "program.h"
@@ -14,12 +15,12 @@ GLFWwindow *window;
 void initGL() {
 	if (!glfwInit())
 		throw "Couldn't start GLFW";
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(640, 480, "Window!!!", 0, 0);
+	window = glfwCreateWindow(640, 480, "Moi Lutu Soepoeliini <3", 0, 0);
 	if (!window) {
 		glfwTerminate();
 		throw "Couldn't open a window";

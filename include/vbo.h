@@ -1,11 +1,11 @@
 #pragma once
 
-#include <gl\glew.h>
+#include <GL/glew.h>
 
 class vbo;
 
-#include "math\vec3.h"
-#include "math\vec4.h"
+#include "math/vec3.h"
+#include "math/vec4.h"
 
 using namespace math;
 

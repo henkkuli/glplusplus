@@ -2,7 +2,7 @@
 
 class shader;
 
-#include <gl\glew.h>
+#include <GL/glew.h>
 #include <fstream>
 
 #include "info.h"
@@ -53,7 +53,8 @@ public:
 		}
 
 		// Clean up
-		delete[] shaderSource, log;	// Free the source
+		delete[] shaderSource;
+		delete[] log;
 
 		// Create new instance of the shader
 		instanceCounter = new unsigned int;
