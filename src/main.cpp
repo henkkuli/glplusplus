@@ -5,7 +5,7 @@
 
 #include "shader.h"
 #include "program.h"
-#include "vbo.h"
+#include "buffer.h"
 #include "vao.h"
 
 using namespace std;
@@ -15,12 +15,12 @@ GLFWwindow *window;
 void initGL() {
 	if (!glfwInit())
 		throw "Couldn't start GLFW";
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(640, 480, "Moi Lutu Soepoeliini <3", 0, 0);
+	window = glfwCreateWindow(640, 480, "Window!!!", 0, 0);
 	if (!window) {
 		glfwTerminate();
 		throw "Couldn't open a window";
@@ -68,10 +68,10 @@ int main() {
 		p.attachShader(f);
 		p.compile();
 
-		vbo vbo(3);
+		buffer vbo;
 		vbo.setData(points, 3);
 		vao vao;
-		vao.setVbo(0, vbo);
+		vao.setAttribute(0, 3, vbo);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window)) {

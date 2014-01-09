@@ -6,7 +6,7 @@ class vao;
 
 #include "math/vec3.h"
 #include "math/vec4.h"
-#include "vbo.h"
+#include "buffer.h"
 
 using namespace math;
 
@@ -36,11 +36,19 @@ public:
 		}
 	}
 	
-	void setVbo(const GLuint index, vbo &vbo) {
+	/*!
+	 * Sets vertex attribute pointed by buffer
+	 *
+	 *
+	 * \param index of vertex attribute (must be same as in shaders)
+	 * \param components per one attribute. Must be 1, 2, 3 or 4
+	 * \param buffer to be added
+	 */
+	void setAttribute(const GLuint index, GLint size, buffer &buf) {
 		bindIfNeeded();
 		glEnableVertexAttribArray(index);
-		vbo.bind();
-		glVertexAttribPointer(index, vbo.size, GL_FLOAT, GL_FALSE, 0, 0);
+		buf.bind(array);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.stride, 0);
 	}
 
 	void bind() {
