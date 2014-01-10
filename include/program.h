@@ -5,6 +5,7 @@ class program;
 #include <GL/glew.h>
 
 #include "shader.h"
+#include "uniform.h"
 
 enum barrierType {
 	vertexAttribArrayBarrier = GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT,
@@ -100,6 +101,18 @@ public:
 			throw log;
 		}
 		delete[] log;
+	}
+
+	/*!
+	 * Gets program uniform by name
+	 *
+	 * \param name of the uniform in shader
+	 */
+	uniform getUniform(const char *name) const {
+		GLint location = glGetUniformLocation(glProgram, name);
+		if (location == -1)
+			throw "Didn't find uniform";
+		return uniform(location);
 	}
 
 private:

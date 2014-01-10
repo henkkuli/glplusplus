@@ -12,6 +12,14 @@ using namespace std;
 
 GLFWwindow *window;
 
+int windowWidth = 640;
+int windowHeight = 480;
+
+void windowResizeCallback(GLFWwindow *window, int width, int height) {
+	windowWidth = width;
+	windowHeight = height;
+}
+
 void initGL() {
 	if (!glfwInit())
 		throw "Couldn't start GLFW";
@@ -20,13 +28,14 @@ void initGL() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(640, 480, "Window!!!", 0, 0);
+	window = glfwCreateWindow(windowWidth, windowHeight, "Window!!!", 0, 0);
 	if (!window) {
 		glfwTerminate();
 		throw "Couldn't open a window";
 	}
 
 	glfwMakeContextCurrent(window);
+	glfwSetWindowSizeCallback(window, windowResizeCallback);
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -38,7 +47,12 @@ void initGL() {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 }
 
 void stopGL() {
@@ -48,13 +62,8 @@ void stopGL() {
 void exit() {
 	stopGL();
 }
- vec4 points[] = {
-	vec4(0.0f,  0.5f,  0.0f,0),
-	vec4(0.5f, -0.5f,  0.0f,0),
-	vec4(-0.5f, -0.5f,  0.0f,0)
-};
 
-#define PARTICLES_COUNT 1024
+#define PARTICLES_COUNT (1024*4*4)
  struct particle {
 	 vec4 position;
 	 vec4 velocity;
@@ -73,16 +82,19 @@ int main() {
 		renderProgram.attachShader(shader("shaders/particleShader_fs.glsl", fragmentShader));
 		renderProgram.attachShader(shader("shaders/particleShader_gs.glsl", geometryShader));
 		renderProgram.link();
+		uniform renderTimeUniform = renderProgram.getUniform("time");
 
 		program computeProgram;
 		computeProgram.attachShader(shader("shaders/particleShader_cs.glsl", computeShader));
 		computeProgram.link();
+		uniform deltatimeUniform = computeProgram.getUniform("dtime");
+		uniform computeTimeUniform = computeProgram.getUniform("time");
 
 		// Setup particle system
 		for (int i = 0; i < PARTICLES_COUNT; ++i) {
 			particle &p = particles[i];		// Shortcut
 			p.position = vec4(0, 0, 0, 1);
-			p.velocity = vec4(sin(i), 3+cos(i), 0, 0);
+			p.velocity = vec4(0, 0, 0, ((float) i) * (1.0 / PARTICLES_COUNT));
 		}
 
 		buffer particleBuffer(shaderStorageBuffer);
@@ -91,19 +103,35 @@ int main() {
 		// Setup vao for rendering
 		vao vao;
 		vao.setAttribute(0, 4, particleBuffer);
+		vao.setAttribute(1, 4, particleBuffer, sizeof(vec4));
+
+		// For debugging
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
+		// Timing
+		double lastUpdate = glfwGetTime();
 
 		// Main loop
-		//glClearColor(1,1,1,1);
 		while (!glfwWindowShouldClose(window)) {
+			glViewport(0, 0, windowWidth, windowHeight);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			double now = glfwGetTime();
+			double delta = now - lastUpdate;
+			lastUpdate = now;
+
+			cout << now << endl;
 
 			// Compute new particle locations
+			computeProgram.use();
+			deltatimeUniform = delta;
+			computeTimeUniform = now;
 			particleBuffer.bind(shaderStorageBuffer, 0);
 			computeProgram.dispatch(PARTICLES_COUNT / 128, 1, 1);
 			computeProgram.barrier(vertexAttribArrayBarrier);
 
 			// Rendering
 			renderProgram.use();
+			renderTimeUniform = now;
 			vao.bind();
 
 			glDisable(GL_DEPTH_TEST);

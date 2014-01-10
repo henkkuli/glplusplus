@@ -51,6 +51,22 @@ public:
 		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, 0);
 	}
 
+	/*!
+	 * Sets vertex attribute pointed by buffer
+	 *
+	 *
+	 * \param index of vertex attribute (must be same as in shaders)
+	 * \param components per one attribute. Must be 1, 2, 3 or 4
+	 * \param buffer to be added
+	 * \param offset of the first element in buffer
+	 */
+	void setAttribute(const GLuint index, GLint size, buffer &buf, int offset) {
+		bindIfNeeded();
+		glEnableVertexAttribArray(index);
+		buf.bind(arrayBuffer);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, (void*) offset);
+	}
+
 	void bind() {
 		glBindVertexArray(glVao);
 		binded = glVao;

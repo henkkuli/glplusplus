@@ -132,6 +132,8 @@ namespace math {
 
 	private:
 		float h[16];
+
+		friend class ::uniform;
 	};
 }
 
