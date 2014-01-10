@@ -11,6 +11,8 @@ using namespace std;
 
 enum shaderType {
 	vertexShader = GL_VERTEX_SHADER,
+	tesselationControlShade = GL_TESS_CONTROL_SHADER,
+	tesselationEvaluationShader = GL_TESS_EVALUATION_SHADER,
 	fragmentShader = GL_FRAGMENT_SHADER,
 	computeShader = GL_COMPUTE_SHADER,
 	geometryShader = GL_GEOMETRY_SHADER
