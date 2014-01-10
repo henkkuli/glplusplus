@@ -121,6 +121,16 @@ public:
 		glBindBuffer(target, glBuffer);
 	}
 
+	/*!
+	 * Binds buffer to an indexed target
+	 * 
+	 * \param OpenGl buffer target
+	 * \param index in target buffer
+	 */
+	void bind(bufferTarget target, GLuint index) {		
+		glBindBufferBase(target, index, glBuffer);
+	}
+
 private:
 	GLuint glBuffer;
 	GLsizei elementSize, bufferSize;

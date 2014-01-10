@@ -6,6 +6,25 @@ class program;
 
 #include "shader.h"
 
+enum barrierType {
+	vertexAttribArrayBarrier = GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT,
+	elementArrayBarrier = GL_ELEMENT_ARRAY_BARRIER_BIT,
+	uniformBarrier = GL_UNIFORM_BARRIER_BIT,
+	textureFetchBarrier = GL_TEXTURE_FETCH_BARRIER_BIT,
+	shaderImageAccessBarrier = GL_SHADER_IMAGE_ACCESS_BARRIER_BIT,
+	commandBarrier = GL_COMMAND_BARRIER_BIT,
+	pixelBufferBarrier = GL_PIXEL_BUFFER_BARRIER_BIT,
+	textureUpdateBarrier = GL_TEXTURE_UPDATE_BARRIER_BIT,
+	bufferUpdateBarrier = GL_BUFFER_UPDATE_BARRIER_BIT,
+	queryBufferBarrier = GL_QUERY_BUFFER_BARRIER_BIT,
+	clientMappedBuffer = GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT,
+	framebufferBarrier = GL_FRAMEBUFFER_BARRIER_BIT,
+	transformFeedbackBarrier = GL_TRANSFORM_FEEDBACK_BARRIER_BIT,
+	atomicCounterBarrier = GL_ATOMIC_COUNTER_BARRIER_BIT,
+	shaderStorageBarrier = GL_SHADER_STORAGE_BARRIER_BIT,
+	allBarrier = GL_ALL_BARRIER_BITS
+};
+
 class program {
 public:
 
@@ -41,7 +60,33 @@ public:
 		glUseProgram(this->glProgram);
 	}
 
-	void compile() {
+	/*!
+	 * Dispatches the compute shader
+	 *
+	 * NOTE: Program must contain a compute shader.
+	 * NOTE: Requires OpenGl 4.3 or higher
+	 *
+	 * \param number of groups in x direction
+	 * \param number of groups in y direction
+	 * \param number of groups in z direction
+	 */
+	void dispatch(GLuint x, GLuint y, GLuint z) {
+		use();		// Make sure that right program is used
+		glDispatchCompute(x, y, z);
+	}
+
+	/*!
+	 * Sets memory barriers for buffers used by compute shader
+	 * Barriers are used to ensure that everything touched by compute shader is ready when needed
+	 */
+	void barrier(barrierType type) {
+		glMemoryBarrier(type);
+	}
+
+	/*!
+	 * Links the shader program
+	 */
+	void link() {
 		glLinkProgram(this->glProgram);
 
 		GLint linked = GL_FALSE;

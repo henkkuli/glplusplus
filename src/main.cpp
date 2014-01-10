@@ -47,10 +47,10 @@ void stopGL() {
 void exit() {
 	stopGL();
 }
- vec3 points[] = {
-	vec3(0.0f,  0.5f,  0.0f),
-	vec3(0.5f, -0.5f,  0.0f),
-	vec3(-0.5f, -0.5f,  0.0f)
+ vec4 points[] = {
+	vec4(0.0f,  0.5f,  0.0f,0),
+	vec4(0.5f, -0.5f,  0.0f,0),
+	vec4(-0.5f, -0.5f,  0.0f,0)
 };
 
 void test() {
@@ -66,16 +66,26 @@ int main() {
 		program p;
 		p.attachShader(v);
 		p.attachShader(f);
-		p.compile();
+		p.link();
 
-		buffer vbo;
-		vbo.setData(points, 3);
+		buffer vbo(arrayBuffer);
+		vbo.allocate(points, 3);
 		vao vao;
 		vao.setAttribute(0, 3, vbo);
+
+		shader cs("shaders/cs.glsl", computeShader);
+		program pc;
+		pc.attachShader(cs);
+		pc.link();
 
 		// Main loop
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			pc.use();
+			vbo.bind(shaderStorageBuffer, 0);
+			pc.dispatch(3, 1, 1);
+			pc.barrier((barrierType) (shaderStorageBarrier | vertexAttribArrayBarrier));
 
 			p.use();
 			vao.bind();
