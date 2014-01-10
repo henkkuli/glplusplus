@@ -38,6 +38,7 @@ void initGL() {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 void stopGL() {
@@ -53,47 +54,65 @@ void exit() {
 	vec4(-0.5f, -0.5f,  0.0f,0)
 };
 
-void test() {
-}
+#define PARTICLES_COUNT 1024
+ struct particle {
+	 vec4 position;
+	 vec4 velocity;
+	 particle() {}
+ } particles[PARTICLES_COUNT];
 
 int main() {
 	try {
+		// Initialize 
 		initGL();
 		atexit(exit);
 		
-		shader v("shaders/defaultShader.v", vertexShader);
-		shader f("shaders/defaultShader.f", fragmentShader);
-		program p;
-		p.attachShader(v);
-		p.attachShader(f);
-		p.link();
+		// Load shaders
+		program renderProgram;
+		renderProgram.attachShader(shader("shaders/particleShader_vs.glsl", vertexShader));
+		renderProgram.attachShader(shader("shaders/particleShader_fs.glsl", fragmentShader));
+		renderProgram.attachShader(shader("shaders/particleShader_gs.glsl", geometryShader));
+		renderProgram.link();
 
-		buffer vbo(arrayBuffer);
-		vbo.allocate(points, 3);
+		program computeProgram;
+		computeProgram.attachShader(shader("shaders/particleShader_cs.glsl", computeShader));
+		computeProgram.link();
+
+		// Setup particle system
+		for (int i = 0; i < PARTICLES_COUNT; ++i) {
+			particle &p = particles[i];		// Shortcut
+			p.position = vec4(0, 0, 0, 1);
+			p.velocity = vec4(sin(i), 3+cos(i), 0, 0);
+		}
+
+		buffer particleBuffer(shaderStorageBuffer);
+		particleBuffer.allocate(particles, PARTICLES_COUNT);
+
+		// Setup vao for rendering
 		vao vao;
-		vao.setAttribute(0, 3, vbo);
-
-		shader cs("shaders/cs.glsl", computeShader);
-		program pc;
-		pc.attachShader(cs);
-		pc.link();
+		vao.setAttribute(0, 4, particleBuffer);
 
 		// Main loop
+		//glClearColor(1,1,1,1);
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			pc.use();
-			vbo.bind(shaderStorageBuffer, 0);
-			pc.dispatch(3, 1, 1);
-			pc.barrier((barrierType) (shaderStorageBarrier | vertexAttribArrayBarrier));
+			// Compute new particle locations
+			particleBuffer.bind(shaderStorageBuffer, 0);
+			computeProgram.dispatch(PARTICLES_COUNT / 128, 1, 1);
+			computeProgram.barrier(vertexAttribArrayBarrier);
 
-			p.use();
+			// Rendering
+			renderProgram.use();
 			vao.bind();
 
-			glEnable (GL_PROGRAM_POINT_SIZE);
-			glDrawArrays(GL_POINTS, 0, 3);
-			glDisable(GL_PROGRAM_POINT_SIZE);
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glDrawArrays(GL_POINTS, 0, PARTICLES_COUNT);
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
 
+			// Update window
 			glfwPollEvents();
 			glfwSwapBuffers(window);
 		}
