@@ -35,7 +35,7 @@ public:
 			delete instanceCounter;
 		}
 	}
-	
+
 	/*!
 	 * Sets vertex attribute pointed by buffer
 	 *
@@ -47,8 +47,8 @@ public:
 	void setAttribute(const GLuint index, GLint size, buffer &buf) {
 		bindIfNeeded();
 		glEnableVertexAttribArray(index);
-		buf.bind(array);
-		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.stride, 0);
+		buf.bind(arrayBuffer);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, 0);
 	}
 
 	void bind() {
