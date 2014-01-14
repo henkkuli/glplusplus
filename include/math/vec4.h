@@ -6,6 +6,8 @@ namespace math {
 
 #include <math.h>
 
+//#include "../uniform.h"
+
 namespace math {
 	class vec4
 	{

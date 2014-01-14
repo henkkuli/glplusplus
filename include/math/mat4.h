@@ -8,6 +8,7 @@ namespace math {
 
 #include "vec4.h"
 #include "vec3.h"
+//#include "../uniform.h"
 
 #define PI 3.14159265358979323846264338327950288419716939937510
 
@@ -126,6 +127,15 @@ namespace math {
 				s.h[0], s.h[1], s.h[2], -(s * position),
 				u.h[0], u.h[1], u.h[2], -(u * position),
 				-f.h[0], -f.h[1], -f.h[2], (f * position),
+				0.0f, 0.0f, 0.0f, 1.0f
+				);
+		}
+		
+		static mat4 scale(float const &x, float const &y, float const &z) {
+			return mat4(
+				x, 0.0f, 0.0f, 0.0f,
+				0.0f, y, 0.0f, 0.0f,
+				0.0f, 0.0f, z, 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f
 				);
 		}

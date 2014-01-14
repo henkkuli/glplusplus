@@ -4,7 +4,11 @@ namespace math {
 	class vec3;
 }
 
+class uniform;
+
 #include <math.h>
+
+//#include "../uniform.h"
 
 namespace math {
 	class vec3
@@ -59,6 +63,12 @@ namespace math {
 				this->h[1] * other.h[1] +
 				this->h[2] * other.h[2];
 		}
+		vec3 operator*(float const &other) const {
+			return vec3(
+				this->h[0] * other, 
+				this->h[1] * other, 
+				this->h[2] * other);
+		}
 		vec3 operator%(vec3 const &other) const {
 			return vec3(
 				this->h[1] * other.h[2] - this->h[2] * other.h[1],
@@ -72,10 +82,25 @@ namespace math {
 
 			return *this;
 		}
+		vec3 const& operator-=(vec3 const& other) {
+			this->h[0] -= other.h[0];
+			this->h[1] -= other.h[1];
+			this->h[2] -= other.h[2];
 
-	private:
+			return *this;
+		}
+		vec3 const& operator+=(vec3 const& other) {
+			this->h[0] += other.h[0];
+			this->h[1] += other.h[1];
+			this->h[2] += other.h[2];
+
+			return *this;
+		}
+
+	//private:
 		float h[3];
 
 		friend class mat4;
+		friend class ::uniform;
 	};
 }

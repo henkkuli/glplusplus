@@ -20,9 +20,13 @@ void main() {
 	uint i = gl_GlobalInvocationID.x;
 	particle p = particles[i];
 
-	if (p.vel.w <= time) {
-		p.pos = vec4(0, 0, 0, 1);
-		p.vel = vec4((mod(time, 0.1)-0.05)*0.3, 0.1+cos(time*1024)*0.1, 0, time+1+fract(dtime*i));
+	if ((p.vel.w -= dtime) < 0) {
+		p.pos = vec4(0, 1, 0, 1);
+		// Some pseudo-random starting velocity
+		p.vel = vec4(	(mod(time, 0.1)-0.05)*0.3,
+						0.1+cos(time*1024)*0.1,
+						(mod(time, 0.01)-0.005)*3,
+						1+fract(dtime*i));			// Life time
 	}
 	p.pos.xyz += p.vel.xyz * dtime;
 	p.vel += GRAVITY * dtime;

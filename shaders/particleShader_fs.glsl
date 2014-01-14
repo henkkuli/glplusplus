@@ -3,7 +3,8 @@
 out vec4 fragColor;
 
 in float fage;
+in vec2 pos;
 
 void main() {
-	fragColor = mix(vec4(1, 0, 0, 0.01), vec4(0.5, 0.25, 0, 0.01), fage);
+	fragColor = vec4(mix(vec3(1, 0, 0), vec3(0.5, 0.25, 0), fage) * (1-length(pos)), 0.1);
 }
