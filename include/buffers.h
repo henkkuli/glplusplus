@@ -2,12 +2,8 @@
 
 #include <GL/glew.h>
 
-class vbo;
-
-#include "math/vec3.h"
-#include "math/vec4.h"
-
-using namespace math;
+class buffer;
+class vao;
 
 enum bufferTarget {
 	arrayBuffer = GL_ARRAY_BUFFER,
@@ -137,4 +133,77 @@ private:
 	unsigned int *instanceCounter;
 
 	friend class vao;
+};
+
+class vao {
+public:
+	vao() {
+		glGenVertexArrays(1, &glVao);
+
+		// Create new instance of the vbo
+		instanceCounter = new unsigned int;
+		*instanceCounter = 1;
+	}
+
+	// Copy constructer (for instance counter)
+	vao(const vao &other) {
+		this->glVao = other.glVao;
+		this->instanceCounter = other.instanceCounter;
+		(*instanceCounter)++;
+	}
+
+	~vao() {
+		(*instanceCounter)--;
+		if (*instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteVertexArrays(1, &glVao);
+			delete instanceCounter;
+		}
+	}
+
+	/*!
+	 * Sets vertex attribute pointed by buffer
+	 *
+	 *
+	 * \param index of vertex attribute (must be same as in shaders)
+	 * \param components per one attribute. Must be 1, 2, 3 or 4
+	 * \param buffer to be added
+	 */
+	void setAttribute(const GLuint index, GLint size, buffer &buf) {
+		bindIfNeeded();
+		glEnableVertexAttribArray(index);
+		buf.bind(arrayBuffer);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, 0);
+	}
+
+	/*!
+	 * Sets vertex attribute pointed by buffer
+	 *
+	 *
+	 * \param index of vertex attribute (must be same as in shaders)
+	 * \param components per one attribute. Must be 1, 2, 3 or 4
+	 * \param buffer to be added
+	 * \param offset of the first element in buffer
+	 */
+	void setAttribute(const GLuint index, GLint size, buffer &buf, int offset) {
+		bindIfNeeded();
+		glEnableVertexAttribArray(index);
+		buf.bind(arrayBuffer);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, (void*) offset);
+	}
+
+	void bind() {
+		glBindVertexArray(glVao);
+		binded = glVao;
+	}
+	void bindIfNeeded() {
+		if (binded != glVao)
+			bind();
+	}
+
+private:
+	GLuint glVao;
+	unsigned int *instanceCounter;
+
+	static GLuint binded;
 };

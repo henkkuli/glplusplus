@@ -3,14 +3,12 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "uniform.h"
-#include "shader.h"
-#include "program.h"
-#include "buffer.h"
-#include "vao.h"
+#include "shaders.h"
+#include "buffers.h"
 #include "texture.h"
 
 using namespace std;
+using namespace math;
 
 GLFWwindow *window;
 
@@ -27,7 +25,7 @@ bool cursorCaptured = false;
 void windowResizeCallback(GLFWwindow *window, int width, int height) {
 	windowWidth = width;
 	windowHeight = height;
-	projection = mat4::perspective(45, 1.0f*width/height, 0.1, 100);
+	projection = mat4::perspective(90, 1.0f*width/height, 0.1, 100);
 }
 
 void initGL() {
@@ -155,6 +153,8 @@ int main() {
 			double now = glfwGetTime();
 			double delta = now - lastUpdate;
 			lastUpdate = now;
+
+			if (delta > 0.05) delta = 0.05;
 			//cout << now << endl;
 
 			// Input
@@ -196,7 +196,6 @@ int main() {
 				cos(cameraVert) * cos(cameraHori)
 			);
 			view = mat4::lookAt(cameraPos, cameraPos + cameraDir, vec3(0, 1, 0));
-			cout<<cameraPos.h[0]<<" "<<cameraPos.h[1]<<" "<<cameraPos.h[2]<<endl;
 
 			// Compute new particle locations
 			computeProgram.use();

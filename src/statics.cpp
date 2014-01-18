@@ -1,3 +1,3 @@
-#include "vao.h"
+#include "buffers.h"
 
 GLuint vao::binded;

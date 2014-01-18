@@ -6,9 +6,10 @@ namespace math {
 
 #include <math.h>
 
-#include "vec4.h"
-#include "vec3.h"
-//#include "../uniform.h"
+#include "vec.h"
+
+// Depencies
+class uniform;
 
 #define PI 3.14159265358979323846264338327950288419716939937510
 
