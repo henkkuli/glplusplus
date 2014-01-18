@@ -32,12 +32,13 @@ public:
 
 		// Load to memory
 		shaderFile.seekg(0, ios::end);
-		int shaderFileLength = shaderFile.tellg();
+		int shaderFileLength = shaderFile.tellg();			// Get estimation of file size (allways big enough?)
 		shaderFile.seekg(0, ios::beg);
-		char *shaderSource = new char[shaderFileLength];
+		char *shaderSource = new char[shaderFileLength+1];	// Reserve enough memory for the whole file
 		shaderFile.read(shaderSource, shaderFileLength);
+		shaderFileLength = shaderFile.gcount();				// Get real file length
+		shaderSource[shaderFileLength] = 0;					// Null terminator
 
-		// Compile
 		char const *shaderSourceConst = shaderSource;
 		glShaderSource(this->glShader, 1, &shaderSourceConst, &shaderFileLength);
 		glCompileShader(this->glShader);
