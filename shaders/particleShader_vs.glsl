@@ -10,5 +10,5 @@ out float vage;
 
 void main() {
 	gl_Position = proj * view * vec4(pos.xyz, 1.0);
-	vage = vel.w;
+	vage = clamp(vel.w, 0, 1);
 }

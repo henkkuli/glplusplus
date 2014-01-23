@@ -27,10 +27,21 @@ public:
 		return value;
 	}
 	
+	int const& operator=(int const &value) {
+		glUniform1i(uniformLocation, value);
+		return value;
+	}
+
 	float const& operator=(float const &value) {
 		glUniform1f(uniformLocation, value);
 		return value;
 	}
+	
+	double const& operator=(double const &value) {
+		glUniform1d(uniformLocation, value);
+		return value;
+	}
+
 private:
 	uniform(GLuint _location) : uniformLocation(_location) {}
 	GLuint uniformLocation;

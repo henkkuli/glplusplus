@@ -22,14 +22,14 @@ void main() {
 		//fage = gl_Position.w;
 
 		gl_Position.xy -= vec2(PARTICLE_WIDTH/2, PARTICLE_HEIGHT/2);
-		pos = vec2(-1,-1);
+		pos = vec2(0, 0);
 		EmitVertex();
 		gl_Position.x += PARTICLE_WIDTH;
-		pos = vec2(1, -1);
+		pos = vec2(1, 0);
 		EmitVertex();
 		gl_Position.x -= PARTICLE_WIDTH;
 		gl_Position.y += PARTICLE_HEIGHT;
-		pos = vec2(-1, 1);
+		pos = vec2(0, 1);
 		EmitVertex();
 		gl_Position.x += PARTICLE_WIDTH;
 		pos = vec2(1, 1);

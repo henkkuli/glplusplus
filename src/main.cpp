@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 #include <iostream>
+#include <string>
 #include <stdlib.h>
 
 #include "shaders.h"
@@ -17,7 +18,7 @@ int windowHeight = 480;
 
 mat4 projection;
 mat4 view;
-vec3 cameraPos(0, 0, -2);
+vec3 cameraPos(0, 1, -2);
 float cameraHori = 0;
 float cameraVert = 0;
 bool cursorCaptured = false;
@@ -57,9 +58,9 @@ void initGL() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 }
@@ -72,10 +73,12 @@ void exit() {
 	stopGL();
 }
 
+#define FLOOR_SIZE 100.0f
 vec3 points[] = {
-   vec3(0.5f, -0.5f,  0.0f),
-   vec3(0.0f,  0.5f,  0.0f),
-   vec3(-0.5f, -0.5f,  0.0f)
+   vec3(FLOOR_SIZE,  0.0f,  FLOOR_SIZE),
+   vec3(FLOOR_SIZE, 0.0f,  -FLOOR_SIZE),
+   vec3(-FLOOR_SIZE, 0.0f,  FLOOR_SIZE),
+   vec3(-FLOOR_SIZE, 0.0f,  -FLOOR_SIZE)
 };
 
 #define PARTICLES_COUNT (128)
@@ -100,6 +103,7 @@ int main() {
 		//uniform particleTimeUniform = particleRenderProgram.getUniform("time");
 		uniform particleProjectionUniform = particleRenderProgram.getUniform("proj");
 		uniform particleViewUniform = particleRenderProgram.getUniform("view");
+		uniform particleTextureUniform = particleRenderProgram.getUniform("sampler");
 		//uniform particleSdUniform = particleRenderProgram.getUniform("screenDimensions");
 
 		program computeProgram;
@@ -126,7 +130,7 @@ int main() {
 
 		// Triangle
 		buffer triangleBuffer(arrayBuffer);
-		triangleBuffer.allocate(points, 3);
+		triangleBuffer.allocate(points, 4);
 		vao triangleVao;
 		triangleVao.setAttribute(0, 3, triangleBuffer);
 		program triangleRenderProgram;
@@ -136,13 +140,24 @@ int main() {
 		//uniform triangleTimeUniform = triangleRenderProgram.getUniform("time");
 		uniform triangleProjectionUniform = triangleRenderProgram.getUniform("proj");
 		uniform triangleViewUniform = triangleRenderProgram.getUniform("view");
+		uniform triangleTextureUniform = triangleRenderProgram.getUniform("sampler");
+
+		texture triangleTexture(texture2DType);
+		triangleTexture.loadBmp("textures/snow.bmp");
+		triangleTexture.setParameter(parameterMagFilter, GL_NEAREST);
+		triangleTexture.setParameter(parameterMinFilter, GL_LINEAR);
+
+		texture particleTexture(texture2DType);
+		particleTexture.loadBmp("textures/explosionAtlas.bmp");
+		particleTexture.setParameter(parameterMagFilter, GL_NEAREST);
+		particleTexture.setParameter(parameterMinFilter, GL_NEAREST);
 
 		// For debugging
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 		
 		// Timing
 		double lastUpdate = glfwGetTime();
+
 		// Main loop
 		while (!glfwWindowShouldClose(window)) {
 			// Setup OpenGL for newx frame
@@ -207,11 +222,22 @@ int main() {
 			computeProgram.barrier(vertexAttribArrayBarrier);
 
 			// Rendering
+			// Triangle
+			triangleTexture.bind(0);
+			triangleRenderProgram.use();
+			triangleProjectionUniform = projection;
+			triangleViewUniform = view;
+			triangleTextureUniform = 0;
+			triangleVao.bind();
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			// Particles
 			particleRenderProgram.use();
-			//particleTimeUniform = now;
-			//particleSdUniform = vec2(windowWidth, windowHeight);
 			particleProjectionUniform = projection;
 			particleViewUniform = view;
+
+			particleTextureUniform = 0;
+			particleTexture.bind(0);
 
 			particleVao.bind();
 
@@ -221,16 +247,6 @@ int main() {
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
 
-			// Triangle
-			triangleRenderProgram.use();
-			//triangleTimeUniform = now;
-			triangleProjectionUniform = projection;
-			triangleViewUniform = view;
-
-			triangleVao.bind();
-
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-
 			// Update window
 			glfwPollEvents();
 			glfwSwapBuffers(window);
@@ -238,6 +254,11 @@ int main() {
 
 		stopGL();
 	} catch (const char *str) {
+		stopGL();
+		cerr << str << endl;
+		cin.get();
+		return 1;
+	} catch (const string str) {
 		stopGL();
 		cerr << str << endl;
 		cin.get();

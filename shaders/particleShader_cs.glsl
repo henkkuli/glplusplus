@@ -23,9 +23,9 @@ void main() {
 	if ((p.vel.w -= dtime) < 0) {
 		p.pos = vec4(0, 1, 0, 1);
 		// Some pseudo-random starting velocity
-		p.vel = vec4(	(mod(time, 0.1)-0.05)*0.3,
-						0.1+cos(time*1024)*0.1,
-						(mod(time, 0.01)-0.005)*3,
+		p.vel = vec4(	(mod(time*i, 0.1)-0.05)*1,
+						0.5+cos(time*i*1024)*0.5,
+						(mod(time*i, 0.01)-0.005)*10,
 						1+fract(dtime*i));			// Life time
 	}
 	p.pos.xyz += p.vel.xyz * dtime;
