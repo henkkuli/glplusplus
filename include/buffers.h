@@ -27,35 +27,48 @@ public:
 	/*!
 	 * Initializes new buffer
 	 *
+	 * NOTE: Binds the created buffer as default target
+	 *
+	 *
 	 * \param default type of buffer as which the buffer should mainly be used
 	 */
 	buffer(bufferTarget defaultTarget) {
-		glGenBuffers(1, &glBuffer);
-		bind(defaultTarget);
+		me = new _bufferData;
 
-		// Create new instance of the vbo
-		instanceCounter = new unsigned int;
-		*instanceCounter = 1;
+		// Initialize buffer
+		glGenBuffers(1, &me->glBuffer);
+		bind(defaultTarget);				// Bind to default target for driver optimisation
+		me->instanceCounter = 1;
 	}
 
-	// Copy constructer (for instance counter)
+	/*!
+	 * Safely copies buffer object
+	 *
+	 *
+	 * \param the object to be copied here
+	 */
 	buffer(const buffer &other) {
-		this->glBuffer = other.glBuffer;
-		this->instanceCounter = other.instanceCounter;
-		(*instanceCounter)++;
+		me = other.me;
+		me->instanceCounter++;
 	}
 
+	/*!
+	 * Destructs the buffer object. If no object refers to this particular buffer, destroys it from the OpenGL memory also.
+	 */
 	~buffer() {
-		(*instanceCounter)--;
-		if (*instanceCounter <= 0) {
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
 			// All instances destroyed
-			glDeleteBuffers(1, &glBuffer);
-			delete instanceCounter;
+			glDeleteBuffers(1, &me->glBuffer);
+			delete me;
 		}
 	}
 
 	/*!
 	 * Allocates new buffer with data specified by data
+	 *
+	 * NOTE: Binds buffer as array buffer
+	 *
 	 *
 	 * \param data to be written into buffer
 	 * \param count of elements in array.
@@ -64,9 +77,9 @@ public:
 	template <class T>
 	void allocate(T *data, int count, int elementSize) {
 		bind(arrayBuffer);
-		this->elementSize = elementSize;
-		this->bufferSize = count * elementSize;
-		glBufferData(arrayBuffer, this->bufferSize, data, GL_STATIC_DRAW);
+		me->elementSize = elementSize;
+		me->bufferSize = count * elementSize;
+		glBufferData(arrayBuffer, me->bufferSize, data, GL_STATIC_DRAW);
 	}
 
 	/*!
@@ -74,6 +87,8 @@ public:
 	 * Equivalent of calling allocate(data, count, sizeof(T))
 	 *
 	 * NOTE: Element size is computed as sizeof(T). Use void allocate(T *data, int count, int elementSize) if you want to set element size
+	 * NOTE: Binds buffer as array object
+	 *
 	 *
 	 * \param data to be written into buffer
 	 * \param count of elements in array.
@@ -85,6 +100,9 @@ public:
 
 	/*!
 	 * Sets data to buffer without reallocating it
+	 *
+	 * NOTE: Binds buffer as array object
+	 *
 	 *
 	 * \param data to be written into buffer
 	 * \param starting index of buffer in bytes
@@ -101,68 +119,87 @@ public:
 	 * Size of data must be equal to the size of buffer
 	 * Equivalent of calling setData(data, 0, bufferSize)
 	 *
+	 * NOTE: Binds buffer as array object
+	 *
+	 *
 	 * \param data to be written into buffer
 	 */
 	template <class T>
 	void setData(T *data) {
-		setData(data, 0, bufferSize);
+		setData(data, 0, me->bufferSize);
 	}
 
 	/*!
 	 * Binds buffer for use
 	 *
+	 *
 	 * \param OpenGl buffer target
 	 */
 	void bind(bufferTarget target) {
-		glBindBuffer(target, glBuffer);
+		glBindBuffer(target, me->glBuffer);
 	}
 
 	/*!
 	 * Binds buffer to an indexed target
-	 * 
+	 *
+	 *
 	 * \param OpenGl buffer target
 	 * \param index in target buffer
 	 */
 	void bind(bufferTarget target, GLuint index) {		
-		glBindBufferBase(target, index, glBuffer);
+		glBindBufferBase(target, index, me->glBuffer);
 	}
 
 private:
-	GLuint glBuffer;
-	GLsizei elementSize, bufferSize;
-	unsigned int *instanceCounter;
+	struct _bufferData {
+		GLuint glBuffer;
+		GLsizei elementSize, bufferSize;
+		unsigned int instanceCounter;
+	} *me;
 
 	friend class vao;
 };
 
 class vao {
 public:
+	/*!
+	 * Initializes new Vertex Array Object
+	 */
 	vao() {
-		glGenVertexArrays(1, &glVao);
+		me = new _vaoData;
 
-		// Create new instance of the vbo
-		instanceCounter = new unsigned int;
-		*instanceCounter = 1;
+		// Initialize vao
+		glGenVertexArrays(1, &me->glVao);
+		me->instanceCounter = 1;
 	}
-
-	// Copy constructer (for instance counter)
+	
+	/*!
+	 * Safely copies vao object
+	 *
+	 *
+	 * \param the object to be copied here
+	 */
 	vao(const vao &other) {
-		this->glVao = other.glVao;
-		this->instanceCounter = other.instanceCounter;
-		(*instanceCounter)++;
+		me = other.me;
+		me->instanceCounter++;
 	}
-
+	
+	/*!
+	 * Destructs the vao object. If no object refers to this particular vao, destroys it from the OpenGL memory also.
+	 */
 	~vao() {
-		(*instanceCounter)--;
-		if (*instanceCounter <= 0) {
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
 			// All instances destroyed
-			glDeleteVertexArrays(1, &glVao);
-			delete instanceCounter;
+			glDeleteVertexArrays(1, &me->glVao);
+			delete me;
 		}
 	}
 
 	/*!
 	 * Sets vertex attribute pointed by buffer
+	 *
+	 * NOTE: Binds this Vertex Array Object to use
 	 *
 	 *
 	 * \param index of vertex attribute (must be same as in shaders)
@@ -170,14 +207,16 @@ public:
 	 * \param buffer to be added
 	 */
 	void setAttribute(const GLuint index, GLint size, buffer &buf) {
-		bindIfNeeded();
+		bind();
 		glEnableVertexAttribArray(index);
 		buf.bind(arrayBuffer);
-		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, 0);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.me->elementSize, 0);
 	}
 
 	/*!
 	 * Sets vertex attribute pointed by buffer
+	 *
+	 * NOTE: Binds this Vertex Array Object to use
 	 *
 	 *
 	 * \param index of vertex attribute (must be same as in shaders)
@@ -186,24 +225,22 @@ public:
 	 * \param offset of the first element in buffer
 	 */
 	void setAttribute(const GLuint index, GLint size, buffer &buf, int offset) {
-		bindIfNeeded();
+		bind();
 		glEnableVertexAttribArray(index);
 		buf.bind(arrayBuffer);
-		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.elementSize, (void*) offset);
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.me->elementSize, (void*) offset);
 	}
 
+	/*!
+	 * Binds this Vertex Array Object to use
+	 */
 	void bind() {
-		glBindVertexArray(glVao);
-		binded = glVao;
-	}
-	void bindIfNeeded() {
-		if (binded != glVao)
-			bind();
+		glBindVertexArray(me->glVao);
 	}
 
 private:
-	GLuint glVao;
-	unsigned int *instanceCounter;
-
-	static GLuint binded;
+	struct _vaoData {
+		GLuint glVao;
+		unsigned int instanceCounter;
+	} *me;
 };

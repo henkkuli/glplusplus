@@ -43,42 +43,72 @@ enum textureParameterType {
 
 class texture {
 public:
-	texture(textureType _type) : type(_type) {
-		glGenTextures(1, &glTexture);
 
-		instanceCounter = new unsigned int;
-		*instanceCounter = 1;
+	texture(textureType type) {
+		me = new _textureData;
+
+		// Initialize texture
+		glGenTextures(1, &me->glTexture);
+		me->type = type;
+		me->instanceCounter = 1;
 	}
 
-	// Copy constructer (for instance counter)
-	texture(const texture &other) : type(other.type) {
-		this->glTexture = other.glTexture;
-		this->instanceCounter = other.instanceCounter;
-		(*instanceCounter)++;
+	/*!
+	 * Safely copies texture object
+	 *
+	 *
+	 * \param the object to be copied here
+	 */
+	texture(const texture &other) {
+		me = other.me;
+		me->instanceCounter++;
 	}
 
+	/*!
+	 * Destructs the texture object. If no object refers to this particular texture, destroys it from the OpenGL memory also.
+	 */
 	~texture() {
-		(*instanceCounter)--;
-		if (*instanceCounter <= 0) {
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
 			// All instances destroyed
-			glDeleteTextures(1, &glTexture);
-			delete instanceCounter;
+			glDeleteTextures(1, &me->glTexture);
+			delete me;
 		}
 	}
 
+	/*!
+	 * Binds texture to the specified texture slot (eg. GL_TEXTURE0, GL_TEXTURE15...)
+	 *
+	 *
+	 * \param the slot to bind texture into
+	 */
 	void bind(unsigned int slot) {
 		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(type, glTexture);
+		glBindTexture(me->type, me->glTexture);
 	}
 
+	/*!
+	 * Sets a parameter for this texture.
+	 *
+	 * NOTE: Binds texture to the slot 0
+	 *
+	 *
+	 * \param OpenGL texture parameter type
+	 * \param value
+	 */
 	texture setParameter(textureParameterType param, GLint value) {
 		bind(0);
-		glTexParameteri(type, param, value);
-		//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(me->type, param, value);
 		return *this;
 	}
 
+	/*!
+	 * DEPRICATED!!! Going to be removed in the future and replaced with new textureLoader class!!!
+	 *
+	 * Loads a texture from a bmp-file. Supports only single file
+	 *
+	 * \param filename
+	 */
 	void loadBmp(const char *filename) {
 #pragma pack(push, 1)
 		struct {
@@ -126,7 +156,7 @@ public:
 				throw string("Image width is not multiple of 4");
 			bind(0);
 			glTexImage2D(
-				type,
+				me->type,
 				0,
 				GL_RGBA,
 				header.width,
@@ -151,7 +181,7 @@ public:
 
 			bind(0);
 			glTexImage2D(
-				type,
+				me->type,
 				0,
 				GL_RGBA,
 				header.width,
@@ -171,7 +201,9 @@ public:
 		delete[] data;
 	}
 private:
-	GLuint glTexture;
-	const textureType type;
-	unsigned int *instanceCounter;
+	struct _textureData {
+		GLuint glTexture;
+		textureType type;
+		unsigned int instanceCounter;
+	} *me;
 };

@@ -14,36 +14,81 @@ class uniform;
 
 class uniform {
 public:
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	math::mat4 const& operator=(math::mat4 const &value) {
 		glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, value.h);
 		return value;
 	}
+	
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	math::vec2 const& operator=(math::vec2 const &value) {
 		glUniform2fv(uniformLocation, 1, value.h);
 		return value;
 	}
+	
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	math::vec3 const& operator=(math::vec3 const &value) {
 		glUniform3fv(uniformLocation, 1, value.h);
 		return value;
 	}
 	
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	int const& operator=(int const &value) {
 		glUniform1i(uniformLocation, value);
 		return value;
 	}
-
+	
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	float const& operator=(float const &value) {
 		glUniform1f(uniformLocation, value);
 		return value;
 	}
 	
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	double const& operator=(double const &value) {
 		glUniform1d(uniformLocation, value);
 		return value;
 	}
 
 private:
+	/*!
+	 * Private constructor for shader objects to create uniforms
+	 *
+	 *
+	 * \param value to be send to the shader program
+	 */
 	uniform(GLuint _location) : uniformLocation(_location) {}
+
 	GLuint uniformLocation;
 
 	friend class program;
@@ -59,15 +104,23 @@ enum shaderType {
 };
 class shader {
 public:
-
+	/*!
+	 * Constructs a new shader of a given type from a file.
+	 *
+	 *
+	 * \param name of the shader file
+	 * \param type of the shader
+	 */
 	shader(const char *filename, shaderType type) {
-		this->glShader = glCreateShader(type);
-		this->type = type;
+		me = new _shaderData;
+
+		me->glShader = glCreateShader(type);
+		me->type = type;
 
 		// Open file
 		ifstream shaderFile(filename, ios::in);
 		if (!shaderFile.is_open())
-			throw "Couldn't open shader file";
+			throw string("Couldn't open shader file");
 
 		// Load to memory
 		shaderFile.seekg(0, ios::end);
@@ -79,51 +132,58 @@ public:
 		shaderSource[shaderFileLength] = 0;					// Null terminator
 
 		char const *shaderSourceConst = shaderSource;
-		glShaderSource(this->glShader, 1, &shaderSourceConst, &shaderFileLength);
-		glCompileShader(this->glShader);
+		glShaderSource(me->glShader, 1, &shaderSourceConst, &shaderFileLength);
+		glCompileShader(me->glShader);
 
 		// Check log
 		GLint compiled = GL_FALSE;
-		glGetShaderiv(this->glShader, GL_COMPILE_STATUS, &compiled);
+		glGetShaderiv(me->glShader, GL_COMPILE_STATUS, &compiled);
 		int logLength;
-		glGetShaderiv(this->glShader, GL_INFO_LOG_LENGTH, &logLength);
+		glGetShaderiv(me->glShader, GL_INFO_LOG_LENGTH, &logLength);
 		char *log = new char[logLength];
-		glGetShaderInfoLog(this->glShader, logLength, 0, log);
+		glGetShaderInfoLog(me->glShader, logLength, 0, log);
 		if (!compiled) {
-			glDeleteShader(this->glShader);
-			throw log;		// Didn't compile
+			glDeleteShader(me->glShader);
+			throw string(log);		// Didn't compile
 		}
 
 		// Clean up
 		delete[] shaderSource;
 		delete[] log;
 
-		// Create new instance of the shader
-		instanceCounter = new unsigned int;
-		*instanceCounter = 1;
+		// Initialize instance counter
+		me->instanceCounter = 1;
 	}
 
-	// Copy constructer (for instance counter)
+	/*!
+	 * Safely copies shader object
+	 *
+	 *
+	 * \param the object to be copied here
+	 */
 	shader(const shader &other) {
-		this->glShader = other.glShader;
-		this->type = other.type;
-		this->instanceCounter = other.instanceCounter;
-		(*instanceCounter)++;
+		me = other.me;
+		me->instanceCounter++;
 	}
 
+	/*!
+	 * Destructs the shader object. If no object refers to this particular shader, destroys it from the OpenGL memory also.
+	 */
 	~shader() {
-		(*instanceCounter)--;
-		if (*instanceCounter <= 0) {
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
 			// All instances destroyed
-			glDeleteShader(this->glShader);
-			delete instanceCounter;
+			glDeleteShader(me->glShader);
+			delete me;
 		}
 	}
 
 private:
-	GLuint glShader;
-	shaderType type;
-	unsigned int *instanceCounter;
+	struct _shaderData {
+		GLuint glShader;
+		shaderType type;
+		unsigned int instanceCounter;
+	} *me;
 
 	friend class program;
 };
@@ -148,37 +208,55 @@ enum barrierType {
 };
 class program {
 public:
-
+	/*!
+	 * Constructs a new OpenGL program.
+	 */
 	program() {
-		this->glProgram = glCreateProgram();
+		me = new _programData;
 
-		// Create new instance of the program
-		instanceCounter = new unsigned int;
-		*instanceCounter = 1;
+		// Initialize the program
+		me->glProgram = glCreateProgram();
+		me->instanceCounter = 1;
 	}
 
-	// Copy constructer (for instance counter)
+	/*!
+	 * Safely copies program object
+	 *
+	 *
+	 * \param the object to be copied here
+	 */
 	program(const program &other) {
-		this->glProgram = other.glProgram;
-		this->instanceCounter = other.instanceCounter;
-		(*instanceCounter)++;
+		me = other.me;
+		me->instanceCounter++;
 	}
 
+	/*!
+	 * Destructs the program object. If no object refers to this particular program, destroys it from the OpenGL memory also.
+	 */
 	~program() {
-		(*instanceCounter)--;
-		if (*instanceCounter <= 0) {
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
 			// All instances destroyed
-			glDeleteProgram(this->glProgram);
-			delete instanceCounter;
+			glDeleteProgram(me->glProgram);
+			delete me;
 		}
 	}
 
+	/*!
+	 * Attaches a shader to this program.
+	 *
+	 *
+	 * \param shader to be attached
+	 */
 	void attachShader(const shader &s) {
-		glAttachShader(this->glProgram, s.glShader);
+		glAttachShader(me->glProgram, s.me->glShader);
 	}
 
+	/*!
+	 * Sets this program as the active program.
+	 */
 	void use() {
-		glUseProgram(this->glProgram);
+		glUseProgram(me->glProgram);
 	}
 
 	/*!
@@ -186,6 +264,7 @@ public:
 	 *
 	 * NOTE: Program must contain a compute shader.
 	 * NOTE: Requires OpenGl 4.3 or higher
+	 * NOTE: Sets this program as the active program
 	 *
 	 * \param number of groups in x direction
 	 * \param number of groups in y direction
@@ -199,6 +278,9 @@ public:
 	/*!
 	 * Sets memory barriers for buffers used by compute shader
 	 * Barriers are used to ensure that everything touched by compute shader is ready when needed
+	 *
+	 *
+	 * \param type of the barrier. Can be multiple barrier types orred together
 	 */
 	void barrier(barrierType type) {
 		glMemoryBarrier(type);
@@ -208,17 +290,17 @@ public:
 	 * Links the shader program
 	 */
 	void link() {
-		glLinkProgram(this->glProgram);
+		glLinkProgram(me->glProgram);
 
 		GLint linked = GL_FALSE;
-		glGetProgramiv(this->glProgram, GL_LINK_STATUS, &linked);
+		glGetProgramiv(me->glProgram, GL_LINK_STATUS, &linked);
 		int logLength;
-		glGetProgramiv(this->glProgram, GL_INFO_LOG_LENGTH, &logLength);
+		glGetProgramiv(me->glProgram, GL_INFO_LOG_LENGTH, &logLength);
 		char *log = new char[logLength];
-		glGetProgramInfoLog(this->glProgram, logLength, 0, log);
+		glGetProgramInfoLog(me->glProgram, logLength, 0, log);
 		if (!linked) {
-			glDeleteProgram(this->glProgram);
-			throw log;
+			glDeleteProgram(me->glProgram);
+			throw string(log);
 		}
 		delete[] log;
 	}
@@ -229,13 +311,15 @@ public:
 	 * \param name of the uniform in shader
 	 */
 	uniform getUniform(const char *name) const {
-		GLint location = glGetUniformLocation(glProgram, name);
+		GLint location = glGetUniformLocation(me->glProgram, name);
 		if (location == -1)
-			throw "Didn't find uniform";
+			throw string("Didn't find uniform");
 		return uniform(location);
 	}
 
 private:
-	GLuint glProgram;
-	unsigned int *instanceCounter;
+	struct _programData {
+		GLuint glProgram;
+		unsigned int instanceCounter;
+	} *me;
 };
