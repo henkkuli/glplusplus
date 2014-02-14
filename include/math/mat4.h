@@ -97,7 +97,7 @@ namespace math {
 				);
 		}
 		static mat4 perspective(float const &fov, float const &aspect, float const &zNear, float const &zFar) {
-			float range = tan((fov / 2.0f)*(PI/180.0)) * zNear;
+			float range = tanf((float) ((fov / 2.0f) * (PI / 180.0f))) * zNear;
 			float left = -range * aspect;
 			float right = range * aspect;
 			float bottom = -range;
