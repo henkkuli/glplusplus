@@ -15,6 +15,11 @@ class uniform;
 class uniform {
 public:
 	/*!
+	 * Dummy default constructor
+	 */
+	uniform() : uniformLocation(-1) {}
+
+	/*!
 	 * Sets shader program uniform to particular value
 	 *
 	 *
@@ -78,6 +83,17 @@ public:
 	double const& operator=(double const &value) {
 		glUniform1d(uniformLocation, value);
 		return value;
+	}
+
+	/*!
+	 * Just copies the uniform location of value to this
+	 *
+	 *
+	 * \param uniform to be assigned
+	 */
+	uniform const& operator=(uniform const &value) {
+		this->uniformLocation = value.uniformLocation;
+		return *this;
 	}
 
 private:
@@ -167,6 +183,26 @@ public:
 	}
 
 	/*!
+	 * Safely assigns shader object
+	 *
+	 *
+	 * \param the object to be assigned here
+	 */
+	shader& operator=(const shader &other) {
+		// Remove the old
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteShader(me->glShader);
+			delete me;
+		}
+		// Assign new
+		me = other.me;
+		me->instanceCounter++;
+		return *this;
+	}
+
+	/*!
 	 * Destructs the shader object. If no object refers to this particular shader, destroys it from the OpenGL memory also.
 	 */
 	~shader() {
@@ -230,6 +266,25 @@ public:
 		me->instanceCounter++;
 	}
 
+	/*!
+	 * Safely assigns program object
+	 *
+	 *
+	 * \param the object to be assigned here
+	 */
+	program& operator=(const program &other) {
+		// Remove the old
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteProgram(me->glProgram);
+			delete me;
+		}
+		// Assign new
+		me = other.me;
+		me->instanceCounter++;
+		return *this;
+	}
 	/*!
 	 * Destructs the program object. If no object refers to this particular program, destroys it from the OpenGL memory also.
 	 */

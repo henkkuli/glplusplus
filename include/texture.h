@@ -68,6 +68,25 @@ public:
 	}
 
 	/*!
+	 * Safely assigns texture object
+	 *
+	 *
+	 * \param the object to be assigned here
+	 */
+	texture& operator=(const texture &other) {
+		// Remove the old
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteTextures(1, &me->glTexture);
+			delete me;
+		}
+		// Assign new
+		me = other.me;
+		me->instanceCounter++;
+		return *this;
+	}
+	/*!
 	 * Destructs the texture object. If no object refers to this particular texture, destroys it from the OpenGL memory also.
 	 */
 	~texture() {

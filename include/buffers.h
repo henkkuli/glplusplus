@@ -25,6 +25,19 @@ enum bufferTarget {
 class buffer {
 public:
 	/*!
+	 * Initializes new buffer without default target
+	 *
+	 * NOTE: Does not bind the buffer to anything. The driver may optimize the buffer based on the type of the first bind
+	 */
+	buffer() {
+		me = new _bufferData;
+
+		// Initialize buffer
+		glGenBuffers(1, &me->glBuffer);
+		me->instanceCounter = 1;
+	}
+
+	/*!
 	 * Initializes new buffer
 	 *
 	 * NOTE: Binds the created buffer as default target
@@ -50,6 +63,26 @@ public:
 	buffer(const buffer &other) {
 		me = other.me;
 		me->instanceCounter++;
+	}
+
+	/*!
+	 * Safely assigns buffer object
+	 *
+	 *
+	 * \param the object to be assigned here
+	 */
+	buffer& operator=(const buffer &other) {
+		// Remove the old
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteBuffers(1, &me->glBuffer);
+			delete me;
+		}
+		// Assign new
+		me = other.me;
+		me->instanceCounter++;
+		return *this;
 	}
 
 	/*!
@@ -183,6 +216,26 @@ public:
 		me = other.me;
 		me->instanceCounter++;
 	}
+
+	/*!
+	 * Safely assigns vao object
+	 *
+	 *
+	 * \param the object to be assigned here
+	 */
+	vao& operator=(const vao &other) {
+		// Remove the old
+		me->instanceCounter--;
+		if (me->instanceCounter <= 0) {
+			// All instances destroyed
+			glDeleteVertexArrays(1, &me->glVao);
+			delete me;
+		}
+		// Assign new
+		me = other.me;
+		me->instanceCounter++;
+		return *this;
+	}
 	
 	/*!
 	 * Destructs the vao object. If no object refers to this particular vao, destroys it from the OpenGL memory also.
@@ -197,7 +250,7 @@ public:
 	}
 
 	/*!
-	 * Sets vertex attribute pointed by buffer
+	 * Sets vertex attribute point to buffer
 	 *
 	 * NOTE: Binds this Vertex Array Object to use
 	 *
@@ -214,7 +267,7 @@ public:
 	}
 
 	/*!
-	 * Sets vertex attribute pointed by buffer
+	 * Sets vertex attribute point to buffer
 	 *
 	 * NOTE: Binds this Vertex Array Object to use
 	 *
@@ -224,11 +277,24 @@ public:
 	 * \param buffer to be added
 	 * \param offset of the first element in buffer
 	 */
-	void setAttribute(const GLuint index, GLint size, buffer &buf, int offset) {
+	void setAttribute(const GLuint index, const GLint size, buffer &buf, const int offset) {
 		bind();
 		glEnableVertexAttribArray(index);
 		buf.bind(arrayBuffer);
 		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, buf.me->elementSize, (void*) offset);
+	}
+
+	/*!
+	 * Sets a buffer to a specific target for this Vertex Array Object
+	 *
+	 * NOTE: binds the buffer to the target
+	 *
+	 *
+	 * \param buffer to be added
+	 * \param target for the buffer
+	 */
+	void setBuffer(buffer &buf, const bufferTarget target) {
+		buf.bind(target);
 	}
 
 	/*!
