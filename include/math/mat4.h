@@ -118,6 +118,14 @@ namespace math {
 				0.0f, 0.0f, 0.0f, 1.0f
 				);
 		}
+		static mat4 translation(vec3 const &vec) {
+			return mat4(
+				1.0f, 0.0f, 0.0f, vec.h[0],
+				0.0f, 1.0f, 0.0f, vec.h[1],
+				0.0f, 0.0f, 1.0f, vec.h[2],
+				0.0f, 0.0f, 0.0f, 1.0f
+				);
+		}
 		static mat4 lookAt(vec3 const &position, vec3 const &direction, vec3 const &up) {
 			vec3 f = (direction - position).normalize();
 			vec3 u = up.normalize();

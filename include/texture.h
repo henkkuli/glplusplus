@@ -236,7 +236,7 @@ private:
 #define PNG_CHUNCK_PLTE (0x504C5445)
 #define PNG_CHUNCK_IDAT (0x49444154)
 #define PNG_CHUNCK_IEND (0x49454E44)
-#define PNG_BUFFER_LENGTH 3
+#define PNG_BUFFER_LENGTH (1024*1024*16)
 
 class pngLoader {
 public:
@@ -296,9 +296,9 @@ public:
 			bool bfinal = nextIdatBit();
 			char btype = nextIdatInt(2);
 
-			cout << "Block:\n"
-				<< (bfinal?"\tFINAL\n":"\tNOT FINAL\n")
-				<< "\tType: " << btype+0 << "\n";
+			//cout << "Block:\n"
+			//	<< (bfinal?"\tFINAL\n":"\tNOT FINAL\n")
+			//	<< "\tType: " << btype+0 << "\n";
 
 			switch (btype) {
 			case 0:
@@ -456,23 +456,35 @@ private:
 				break;
 				
 			case PNG_CHUNCK_IEND:
+				//cout << "End of png stream" << endl;
 				return -1;				// End of file
 				break;
 
 			default:
-				throw (string("Unknown chunk: ") + (char)(type>>24) + (char)(type>>16) + (char)(type>>8) + (char)(type>>0));
+				// Unknown chunk
+				//cout<<"Unknown chunk: " << (char)(type>>24) << (char)(type>>16) << (char)(type>>8) << (char)(type>>0) << endl;
+				if (!((char)(type>>24) & (1 << 5))) {
+					// Critical
+					throw string("Unknown chunk: ") + (char)(type>>24) + (char)(type>>16) + (char)(type>>8) + (char)(type>>0);
+				} else {
+					// Just skip the chunk
+					for (unsigned int i = 0; i < lengthLeft; i++) {
+						nextFileByte();
+					}
+					lengthLeft = 0;
+				}
 			}
 		}
-		
+		if (!ifs) {
+			throw string("Error while reading the png file");
+		}
 		if (bufferIndex >= PNG_BUFFER_LENGTH) {
 			if (lengthLeft > PNG_BUFFER_LENGTH) {
 				ifs.read((char*) buffer, PNG_BUFFER_LENGTH);
-				lengthLeft -= PNG_BUFFER_LENGTH;
 				bufferLength = PNG_BUFFER_LENGTH;
 			} else {
 				ifs.read((char *) buffer, lengthLeft);
 				bufferLength = lengthLeft;
-				lengthLeft = 0;
 			}
 			bufferIndex = 0;
 		}
@@ -480,6 +492,7 @@ private:
 			return -1;		// Too far
 		}
 
+		lengthLeft--;
 		currentBit = -1;		// Make nextIdatBit to read from the next byte
 		return buffer[bufferIndex++];
 	}
@@ -540,9 +553,9 @@ private:
 		unsigned short hclen = nextIdatInt(4) + 4;
 	
 		// Print some nice debug info
-		cout << "\tHLIT: " << hlit << "\n"
-			<< "\tHDIST: " << hdist << "\n"
-			<< "\tHCLEN: " << hclen << "\n";
+		//cout << "\tHLIT: " << hlit << "\n"
+		//	<< "\tHDIST: " << hdist << "\n"
+		//	<< "\tHCLEN: " << hclen << "\n";
 		
 		// Decode code codes
 		unsigned char codeLengthCodeLengths[19];
@@ -644,8 +657,8 @@ private:
 		if ((unsigned short) ~length != nlength)
 			throw string("Invalid length in uncompressed block");
 
-		cout << "\tLength: " << length << "\n"
-			<< "\tNLength: " << nlength << "\n";
+		//cout << "\tLength: " << length << "\n"
+		//	<< "\tNLength: " << nlength << "\n";
 		
 		for (unsigned short i = 0; i < length; i++) {
 			put(nextIdatByte());

@@ -285,6 +285,26 @@ public:
 	}
 
 	/*!
+	 * Sets vertex attribute point to buffer
+	 *
+	 * NOTE: Binds this Vertex Array Object to use
+	 *
+	 *
+	 * \param index of vertex attribute (must be same as in shaders)
+	 * \param components per one attribute. Must be 1, 2, 3 or 4
+	 * \param specifies the type of an element
+	 * \param if integral type is specified, tells the OpenGL to scale integers to range from -1 or 0 to 1. Otherwice must be false
+	 * \param buffer to be added
+	 * \param offset of the first element in buffer
+	 */
+	void setAttribute(const GLuint index, const GLint size, const GLenum type, const bool normalized, buffer &buf, const int offset) {
+		bind();
+		glEnableVertexAttribArray(index);
+		buf.bind(arrayBuffer);
+		glVertexAttribPointer(index, size, type, normalized, buf.me->elementSize, (void*) offset);
+	}
+
+	/*!
 	 * Sets a buffer to a specific target for this Vertex Array Object
 	 *
 	 * NOTE: binds the buffer to the target

@@ -80,6 +80,18 @@ namespace math {
 			return *this;
 		}
 
+		float &x() {
+			return h[0];
+		}
+		float &y() {
+			return h[1];
+		}
+		const float x() const {
+			return h[0];
+		}
+		const float y() const {
+			return h[1];
+		}
 	private:
 		float h[2];
 
@@ -171,6 +183,24 @@ namespace math {
 			return *this;
 		}
 
+		float &x() {
+			return h[0];
+		}
+		float &y() {
+			return h[1];
+		}
+		float &z() {
+			return h[2];
+		}
+		const float x() const {
+			return h[0];
+		}
+		const float y() const {
+			return h[1];
+		}
+		const float z() const {
+			return h[2];
+		}
 	private:
 		float h[3];
 
@@ -194,6 +224,30 @@ namespace math {
 			this->h[3] = w;
 		}
 
+		float &x() {
+			return h[0];
+		}
+		float &y() {
+			return h[1];
+		}
+		float &z() {
+			return h[2];
+		}
+		float &w() {
+			return h[3];
+		}
+		const float x() const {
+			return h[0];
+		}
+		const float y() const {
+			return h[1];
+		}
+		const float z() const {
+			return h[2];
+		}
+		const float w() const {
+			return h[3];
+		}
 	private:
 		float h[4];
 

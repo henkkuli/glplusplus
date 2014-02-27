@@ -96,6 +96,17 @@ public:
 		return *this;
 	}
 
+	/*!
+	 * Sets shader program uniform to particular value
+	 *
+	 *
+	 * \param array of values to be send to the shader program
+	 * \param count of elements in the array
+	 */
+	void setArray(math::mat4 const *array, unsigned int count) {
+		glUniformMatrix4fv(uniformLocation, count, GL_FALSE, (GLfloat*) array);
+	}
+
 private:
 	/*!
 	 * Private constructor for shader objects to create uniforms
@@ -368,7 +379,7 @@ public:
 	uniform getUniform(const char *name) const {
 		GLint location = glGetUniformLocation(me->glProgram, name);
 		if (location == -1)
-			throw string("Didn't find uniform");
+			throw string("Didn't find uniform: ") + name;
 		return uniform(location);
 	}
 
