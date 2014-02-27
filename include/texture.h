@@ -236,7 +236,7 @@ private:
 #define PNG_CHUNCK_PLTE (0x504C5445)
 #define PNG_CHUNCK_IDAT (0x49444154)
 #define PNG_CHUNCK_IEND (0x49454E44)
-#define PNG_BUFFER_LENGTH (1024*1024*16)
+#define PNG_BUFFER_LENGTH (1024)
 
 class pngLoader {
 public:
