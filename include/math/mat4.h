@@ -139,12 +139,21 @@ namespace math {
 				0.0f, 0.0f, 0.0f, 1.0f
 				);
 		}
-		
+
 		static mat4 scale(float const &x, float const &y, float const &z) {
 			return mat4(
 				x, 0.0f, 0.0f, 0.0f,
 				0.0f, y, 0.0f, 0.0f,
 				0.0f, 0.0f, z, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f
+				);
+		}
+
+		static mat4 scale(vec3 const &factor) {
+			return mat4(
+				factor.h[0], 0.0f, 0.0f, 0.0f,
+				0.0f, factor.h[1], 0.0f, 0.0f,
+				0.0f, 0.0f, factor.h[2], 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f
 				);
 		}
