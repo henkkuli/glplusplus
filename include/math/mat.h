@@ -14,17 +14,16 @@ class uniform;
 #define PI 3.14159265358979323846264338327950288419716939937510
 
 namespace math {
-	class mat4
-	{
+	class mat4 {
 	public:
 
-		mat4() {
+		explicit mat4() {
 			this->h[ 0] = 1.0f; this->h[ 4] = 0.0f; this->h[ 8] = 0.0f; this->h[12] = 0.0f;
 			this->h[ 1] = 0.0f; this->h[ 5] = 1.0f; this->h[ 9] = 0.0f; this->h[13] = 0.0f;
 			this->h[ 2] = 0.0f; this->h[ 6] = 0.0f; this->h[10] = 1.0f; this->h[14] = 0.0f;
 			this->h[ 3] = 0.0f; this->h[ 7] = 0.0f; this->h[11] = 0.0f; this->h[15] = 1.0f;
 		}
-		mat4(float const &a1,float const &a2,float const &a3,float const &a4,
+		explicit mat4(float const &a1, float const &a2, float const &a3, float const &a4,
 			float const &b1,float const &b2,float const &b3,float const &b4,
 			float const &c1,float const &c2,float const &c3,float const &c4,
 			float const &d1,float const &d2,float const &d3,float const &d4) {

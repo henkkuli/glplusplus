@@ -10,16 +10,19 @@ namespace math {
 
 // Depencies
 class uniform;
+namespace math {
+	class versor;
+}
 
 namespace math {
 	class vec2
 	{
 	public:
-		vec2() {
+		explicit vec2() {
 			this->h[0] = 0.0f;
 			this->h[1] = 0.0f;
 		}
-		vec2(float const &x, float const &y) {
+		explicit vec2(float const &x, float const &y) {
 			this->h[0] = x;
 			this->h[1] = y;
 		}
@@ -100,12 +103,12 @@ namespace math {
 	class vec3
 	{
 	public:
-		vec3() {
+		explicit vec3() {
 			this->h[0] = 0.0f;
 			this->h[1] = 0.0f;
 			this->h[2] = 0.0f;
 		}
-		vec3(float const &x, float const &y, float const &z) {
+		explicit vec3(float const &x, float const &y, float const &z) {
 			this->h[0] = x;
 			this->h[1] = y;
 			this->h[2] = z;
@@ -204,20 +207,21 @@ namespace math {
 	private:
 		float h[3];
 
+		friend class versor;
 		friend class mat4;
 		friend class ::uniform;
 	};
 	class vec4
 	{
 	public:
-		vec4() {
+		explicit vec4() {
 			this->h[0] = 0.0f;
 			this->h[1] = 0.0f;
 			this->h[2] = 0.0f;
 			this->h[3] = 0.0f;
 		}
 
-		vec4(float const &x, float const &y, float const &z, float const &w) {
+		explicit vec4(float const &x, float const &y, float const &z, float const &w) {
 			this->h[0] = x;
 			this->h[1] = y;
 			this->h[2] = z;

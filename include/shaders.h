@@ -9,7 +9,7 @@ class shader;
 class program;
 class uniform;
 
-#include "math/mat4.h"
+#include "math/mat.h"
 #include "math/vec.h"
 
 class uniform {
