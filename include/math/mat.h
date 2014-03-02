@@ -1,6 +1,7 @@
 #pragma once
 
 namespace math {
+	class mat3;
 	class mat4;
 }
 
@@ -14,6 +15,36 @@ class uniform;
 #define PI 3.14159265358979323846264338327950288419716939937510
 
 namespace math {
+	class mat3 {
+	public:
+		explicit mat3() {
+			h[0] = 1.0f; h[3] = 0.0f; h[6] = 0.0f;
+			h[1] = 0.0f; h[4] = 1.0f; h[7] = 0.0f;
+			h[2] = 0.0f; h[4] = 0.0f; h[8] = 1.0f;
+		}
+
+		explicit mat3(float const &a1, float const &a2, float const &a3,
+			float const &b1, float const &b2, float const &b3,
+			float const &c1, float const &c2, float const &c3) {
+			h[0] = a1;
+			h[1] = b1;
+			h[2] = c1;
+
+			h[3] = a2;
+			h[4] = b2;
+			h[5] = c2;
+
+			h[6] = a3;
+			h[7] = b3;
+			h[8] = c3;
+		}
+
+		operator mat4();
+
+	private:
+		float h[9];
+	};
+
 	class mat4 {
 	public:
 
@@ -162,5 +193,14 @@ namespace math {
 
 		friend class ::uniform;
 	};
+
+	inline mat3::operator math::mat4() {
+		return mat4(
+			h[0], h[3], h[6], 0.0f,
+			h[1], h[4], h[7], 0.0f,
+			h[2], h[5], h[8], 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+			);
+	}
 }
 

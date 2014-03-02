@@ -99,6 +99,8 @@ namespace math {
 		float h[2];
 
 		friend class ::uniform;
+		friend class vec3;
+		friend class vec4;
 	};
 	class vec3
 	{
@@ -113,6 +115,9 @@ namespace math {
 			this->h[1] = y;
 			this->h[2] = z;
 		}
+
+		vec3(vec2 const &vec);
+		vec3(vec4 const &vec);
 
 		float length() const {
 			return sqrt(
@@ -210,6 +215,8 @@ namespace math {
 		friend class versor;
 		friend class mat4;
 		friend class ::uniform;
+		friend class vec2;
+		friend class vec4;
 	};
 	class vec4
 	{
@@ -227,6 +234,9 @@ namespace math {
 			this->h[2] = z;
 			this->h[3] = w;
 		}
+
+		vec4(vec2 const &vec);
+		vec4(vec3 const &vec);
 
 		float &x() {
 			return h[0];
@@ -256,5 +266,30 @@ namespace math {
 		float h[4];
 
 		friend class mat4;
+		friend class vec2;
+		friend class vec3;
 	};
+
+	inline vec3::vec3(vec2 const &vec) {
+		this->h[0] = vec.h[0];
+		this->h[1] = vec.h[1];
+		this->h[2] = 0.0f;
+	}
+	inline vec3::vec3(vec4 const &vec) {
+		this->h[0] = vec.h[0];
+		this->h[1] = vec.h[1];
+		this->h[2] = vec.h[2];
+	}
+	inline vec4::vec4(vec2 const &vec) {
+		this->h[0] = vec.h[0];
+		this->h[1] = vec.h[1];
+		this->h[2] = 0.0f;
+		this->h[3] = 0.0f;
+	}
+	inline vec4::vec4(vec3 const &vec) {
+		this->h[0] = vec.h[0];
+		this->h[1] = vec.h[1];
+		this->h[2] = vec.h[2];
+		this->h[3] = 0.0f;
+	}
 }
