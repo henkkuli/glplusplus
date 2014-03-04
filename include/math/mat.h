@@ -1,8 +1,15 @@
 #pragma once
 
 namespace math {
-	class mat3;
-	class mat4;
+	template<typename T>
+	class tmat3;
+	typedef tmat3<float> mat3;
+	typedef tmat3<double> dmat3;
+
+	template<typename T>
+	class tmat4;
+	typedef tmat4<float> mat4;
+	typedef tmat4<double> dmat4;
 }
 
 #include <math.h>
@@ -15,17 +22,18 @@ class uniform;
 #define PI 3.14159265358979323846264338327950288419716939937510
 
 namespace math {
-	class mat3 {
+	template<typename T>
+	class tmat3 {
 	public:
-		explicit mat3() {
-			h[0] = 1.0f; h[3] = 0.0f; h[6] = 0.0f;
-			h[1] = 0.0f; h[4] = 1.0f; h[7] = 0.0f;
-			h[2] = 0.0f; h[4] = 0.0f; h[8] = 1.0f;
+		explicit tmat3() {
+			h[0] = (T)1; h[3] = (T)0; h[6] = (T)0;
+			h[1] = (T)0; h[4] = (T)1; h[7] = (T)0;
+			h[2] = (T)0; h[4] = (T)0; h[8] = (T)1;
 		}
 
-		explicit mat3(float const &a1, float const &a2, float const &a3,
-			float const &b1, float const &b2, float const &b3,
-			float const &c1, float const &c2, float const &c3) {
+		explicit tmat3(T const &a1, T const &a2, T const &a3,
+			T const &b1, T const &b2, T const &b3,
+			T const &c1, T const &c2, T const &c3) {
 			h[0] = a1;
 			h[1] = b1;
 			h[2] = c1;
@@ -39,25 +47,26 @@ namespace math {
 			h[8] = c3;
 		}
 
-		operator mat4();
+		operator tmat4<T>();
 
 	private:
-		float h[9];
+		T h[9];
 	};
 
-	class mat4 {
+	template<typename T>
+	class tmat4 {
 	public:
 
-		explicit mat4() {
-			this->h[ 0] = 1.0f; this->h[ 4] = 0.0f; this->h[ 8] = 0.0f; this->h[12] = 0.0f;
-			this->h[ 1] = 0.0f; this->h[ 5] = 1.0f; this->h[ 9] = 0.0f; this->h[13] = 0.0f;
-			this->h[ 2] = 0.0f; this->h[ 6] = 0.0f; this->h[10] = 1.0f; this->h[14] = 0.0f;
-			this->h[ 3] = 0.0f; this->h[ 7] = 0.0f; this->h[11] = 0.0f; this->h[15] = 1.0f;
+		explicit tmat4() {
+			this->h[0] = (T)1; this->h[4] = (T)0; this->h[8] = (T)0; this->h[12] = (T)0;
+			this->h[1] = (T)0; this->h[5] = (T)1; this->h[9] = (T)0; this->h[13] = (T)0;
+			this->h[2] = (T)0; this->h[6] = (T)0; this->h[10] = (T)1; this->h[14] = (T)0;
+			this->h[3] = (T)0; this->h[7] = (T)0; this->h[11] = (T)0; this->h[15] = (T)1;
 		}
-		explicit mat4(float const &a1, float const &a2, float const &a3, float const &a4,
-			float const &b1,float const &b2,float const &b3,float const &b4,
-			float const &c1,float const &c2,float const &c3,float const &c4,
-			float const &d1,float const &d2,float const &d3,float const &d4) {
+		explicit tmat4(T const &a1, T const &a2, T const &a3, T const &a4,
+			T const &b1, T const &b2, T const &b3,T const &b4,
+			T const &c1, T const &c2, T const &c3,  T const &c4,
+			T const &d1, T const &d2, T const &d3, T const &d4) {
 				this->h[ 0] = a1;
 				this->h[ 1] = b1;
 				this->h[ 2] = c1;
@@ -79,23 +88,23 @@ namespace math {
 				this->h[15] = d4;
 		}
 
-		mat4 operator*(mat4 const &other) const {
-			return mat4(
+		tmat4 operator*(tmat4 const &other) const {
+			return tmat4(
 				this->h[0] * other.h[0] + this->h[4] * other.h[1] + this->h[8] * other.h[2] + this->h[12] * other.h[3],  this->h[0] * other.h[4] + this->h[4] * other.h[5] + this->h[8] * other.h[6] + this->h[12] * other.h[7],  this->h[0] * other.h[8] + this->h[4] * other.h[9] + this->h[8] * other.h[10] + this->h[12] * other.h[11],  this->h[0] * other.h[12] + this->h[4] * other.h[13] + this->h[8] * other.h[14] + this->h[12] * other.h[15], 
 				this->h[1] * other.h[0] + this->h[5] * other.h[1] + this->h[9] * other.h[2] + this->h[13] * other.h[3],  this->h[1] * other.h[4] + this->h[5] * other.h[5] + this->h[9] * other.h[6] + this->h[13] * other.h[7],  this->h[1] * other.h[8] + this->h[5] * other.h[9] + this->h[9] * other.h[10] + this->h[13] * other.h[11],  this->h[1] * other.h[12] + this->h[5] * other.h[13] + this->h[9] * other.h[14] + this->h[13] * other.h[15], 
 				this->h[2] * other.h[0] + this->h[6] * other.h[1] + this->h[10] * other.h[2] + this->h[14] * other.h[3],  this->h[2] * other.h[4] + this->h[6] * other.h[5] + this->h[10] * other.h[6] + this->h[14] * other.h[7],  this->h[2] * other.h[8] + this->h[6] * other.h[9] + this->h[10] * other.h[10] + this->h[14] * other.h[11],  this->h[2] * other.h[12] + this->h[6] * other.h[13] + this->h[10] * other.h[14] + this->h[14] * other.h[15], 
 				this->h[3] * other.h[0] + this->h[7] * other.h[1] + this->h[11] * other.h[2] + this->h[15] * other.h[3],  this->h[3] * other.h[4] + this->h[7] * other.h[5] + this->h[11] * other.h[6] + this->h[15] * other.h[7],  this->h[3] * other.h[8] + this->h[7] * other.h[9] + this->h[11] * other.h[10] + this->h[15] * other.h[11],  this->h[3] * other.h[12] + this->h[7] * other.h[13] + this->h[11] * other.h[14] + this->h[15] * other.h[15]
 			);
 		}
-		vec4 operator*(vec4 const &other) const {
-			return vec4(
+		tvec4<T> operator*(tvec4<T> const &other) const {
+			return tvec4<T>(
 				this->h[0] * other.h[0] + this->h[4] * other.h[1] + this->h[8] * other.h[2] + this->h[12] * other.h[3],
 				this->h[1] * other.h[0] + this->h[5] * other.h[1] + this->h[9] * other.h[2] + this->h[13] * other.h[3],
 				this->h[2] * other.h[0] + this->h[6] * other.h[1] + this->h[10] * other.h[2] + this->h[14] * other.h[3],
 				this->h[3] * other.h[0] + this->h[7] * other.h[1] + this->h[11] * other.h[2] + this->h[15] * other.h[3]
 			);
 		}
-		mat4 const& operator=(mat4 const &value) {
+		tmat4 const& operator=(tmat4 const &value) {
 			this->h[0] = value.h[0];
 			this->h[1] = value.h[1];
 			this->h[2] = value.h[2];
@@ -118,88 +127,89 @@ namespace math {
 			return *this;
 		}
 
-		static mat4 ortho(float const &left, float const &right, float const &bottom, float const &top) {
-			return mat4(
-				2.0f / (right - left), 0.0f, 0.0f, 0.0f,
-				0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
-				0.0f, 0.0f, -1.0f, 0.0f,
-				-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0f, 1.0f
+		static tmat4 ortho(T const &left, T const &right, T const &bottom, T const &top) {
+			return tmat4(
+				2.0f / (right - left), (T)0, (T)0, (T)0,
+				(T)0, (T)2 / (top - bottom), (T)0, (T)0,
+				(T)0, (T)0, (T)-1, (T)0,
+				-(right + left) / (right - left), -(top + bottom) / (top - bottom), (T)0, (T)1
 				);
 		}
-		static mat4 perspective(float const &fov, float const &aspect, float const &zNear, float const &zFar) {
-			float range = tanf((float) ((fov / 2.0f) * (PI / 180.0f))) * zNear;
-			float left = -range * aspect;
-			float right = range * aspect;
-			float bottom = -range;
-			float top = range;
+		static tmat4 perspective(T const &fov, T const &aspect, T const &zNear, T const &zFar) {
+			T range = tan((T) ((fov / 2.0f) * (PI / 180.0f))) * zNear;
+			T left = -range * aspect;
+			T right = range * aspect;
+			T bottom = -range;
+			T top = range;
 
-			return mat4(
-				2 * zNear / (right - left), 0.0f, 0.0f, 0.0f,
-				0.0f, 2 * zNear / (top - bottom), 0.0f, 0.0f,
-				0.0f, 0.0f, -(zFar + zNear) / (zFar - zNear), -2 * zFar * zNear / (zFar - zNear),
-				0.0f, 0.0f, -1.0f, 0.0f
+			return tmat4(
+				2 * zNear / (right - left), (T)0, (T)0, (T)0,
+				(T)0, 2 * zNear / (top - bottom), (T)0, (T)0,
+				(T)0, (T)0, -(zFar + zNear) / (zFar - zNear), -2 * zFar * zNear / (zFar - zNear),
+				(T)0, (T)0, (T)-1, (T)0
 				);
 		}
-		static mat4 translation(float const &x, float const &y, float const &z) {
-			return mat4(
-				1.0f, 0.0f, 0.0f, x,
-				0.0f, 1.0f, 0.0f, y,
-				0.0f, 0.0f, 1.0f, z,
-				0.0f, 0.0f, 0.0f, 1.0f
+		static tmat4 translation(T const &x, T const &y, T const &z) {
+			return tmat4(
+				(T)1, (T)0, (T)0, x,
+				(T)0, (T)1, (T)0, y,
+				(T)0, (T)0, (T)1, z,
+				(T)0, (T)0, (T)0, (T)1
 				);
 		}
-		static mat4 translation(vec3 const &vec) {
-			return mat4(
-				1.0f, 0.0f, 0.0f, vec.h[0],
-				0.0f, 1.0f, 0.0f, vec.h[1],
-				0.0f, 0.0f, 1.0f, vec.h[2],
-				0.0f, 0.0f, 0.0f, 1.0f
+		static tmat4 translation(tvec3<T> const &vec) {
+			return tmat4(
+				(T)1, (T)0, (T)0, vec.x,
+				(T)0, (T)1, (T)0, vec.y,
+				(T)0, (T)0, (T)1, vec.z,
+				(T)0, (T)0, (T)0, (T)1
 				);
 		}
-		static mat4 lookAt(vec3 const &position, vec3 const &direction, vec3 const &up) {
-			vec3 f = (direction - position).normalize();
-			vec3 u = up.normalize();
-			vec3 s = (f % u).normalize();
-			u = s % f;
+		static tmat4 lookAt(tvec3<T> const &position, tvec3<T> const &direction, tvec3<T> const &up) {
+			tvec3<T> f = (direction - position).normalize();
+			tvec3<T> u = up.normalize();
+			tvec3<T> s = cross(f, u).normalize();
+			u = cross(s, f);
 
-			return mat4(
-				s.h[0], s.h[1], s.h[2], -(s * position),
-				u.h[0], u.h[1], u.h[2], -(u * position),
-				-f.h[0], -f.h[1], -f.h[2], (f * position),
-				0.0f, 0.0f, 0.0f, 1.0f
-				);
-		}
-
-		static mat4 scale(float const &x, float const &y, float const &z) {
-			return mat4(
-				x, 0.0f, 0.0f, 0.0f,
-				0.0f, y, 0.0f, 0.0f,
-				0.0f, 0.0f, z, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f
+			return tmat4(
+				s.x, s.y, s.z, -dot(s, position),
+				u.x, u.y, u.z, -dot(u, position),
+				-f.x, -f.y, -f.z, dot(f, position),
+				(T)0, (T)0, (T)0, (T)1
 				);
 		}
 
-		static mat4 scale(vec3 const &factor) {
-			return mat4(
-				factor.h[0], 0.0f, 0.0f, 0.0f,
-				0.0f, factor.h[1], 0.0f, 0.0f,
-				0.0f, 0.0f, factor.h[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f
+		static tmat4 scale(T const &x, T const &y, T const &z) {
+			return tmat4(
+				x, (T)0, (T)0, (T)0,
+				(T)0, y, (T)0, (T)0,
+				(T)0, (T)0, z, (T)0,
+				(T)0, (T)0, (T)0, (T)1
+				);
+		}
+
+		static tmat4 scale(tvec3<T> const &factor) {
+			return tmat4(
+				factor.h[0], (T)0, (T)0, (T)0,
+				(T)0, factor.h[1], (T)0, (T)0,
+				(T)0, (T)0, factor.h[2], (T)0,
+				(T)0, (T)0, (T)0, (T)1
 				);
 		}
 
 	private:
-		float h[16];
+		T h[16];
 
 		friend class ::uniform;
 	};
 
-	inline mat3::operator math::mat4() {
-		return mat4(
-			h[0], h[3], h[6], 0.0f,
-			h[1], h[4], h[7], 0.0f,
-			h[2], h[5], h[8], 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
+	template<typename T>
+	inline tmat3<T>::operator math::tmat4<T>() {
+		return tmat4<T>(
+			h[0], h[3], h[6], (T)0,
+			h[1], h[4], h[7], (T)0,
+			h[2], h[5], h[8], (T)0,
+			(T)0, (T)0, (T)0, (T)1
 			);
 	}
 }

@@ -37,7 +37,7 @@ public:
 	 * \param value to be send to the shader program
 	 */
 	math::vec2 const& operator=(math::vec2 const &value) {
-		glUniform2fv(uniformLocation, 1, value.h);
+		glUniform2fv(uniformLocation, 1, (GLfloat*) &value);
 		return value;
 	}
 	
@@ -48,7 +48,7 @@ public:
 	 * \param value to be send to the shader program
 	 */
 	math::vec3 const& operator=(math::vec3 const &value) {
-		glUniform3fv(uniformLocation, 1, value.h);
+		glUniform3fv(uniformLocation, 1, (GLfloat*)&value);
 		return value;
 	}
 	
