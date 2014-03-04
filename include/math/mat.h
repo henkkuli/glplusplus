@@ -47,10 +47,13 @@ namespace math {
 			h[8] = c3;
 		}
 
-		operator tmat4<T>();
+		// Cast operators
+		explicit tmat3(tmat4<T> const &mat);
 
 	private:
 		T h[9];
+
+		friend class tmat4<T>;
 	};
 
 	template<typename T>
@@ -87,6 +90,9 @@ namespace math {
 				this->h[14] = c4;
 				this->h[15] = d4;
 		}
+
+		// Cast operators
+		explicit tmat4(tmat3<T> const &mat);
 
 		tmat4 operator*(tmat4 const &other) const {
 			return tmat4(
@@ -201,16 +207,24 @@ namespace math {
 		T h[16];
 
 		friend class ::uniform;
+		friend class tmat3<T>;
 	};
 
+	// Cast constructors
 	template<typename T>
-	inline tmat3<T>::operator math::tmat4<T>() {
-		return tmat4<T>(
-			h[0], h[3], h[6], (T)0,
-			h[1], h[4], h[7], (T)0,
-			h[2], h[5], h[8], (T)0,
-			(T)0, (T)0, (T)0, (T)1
-			);
+	inline tmat4<T>::tmat4(tmat3<T> const &mat) :
+		tmat4(
+		mat.h[0], mat.h[3], mat.h[6], (T)0,
+		mat.h[1], mat.h[4], mat.h[7], (T)0,
+		mat.h[2], mat.h[5], mat.h[8], (T)0,
+		(T)0, (T)0, (T)0, (T)1) {
+	}
+	template<typename T>
+	inline tmat3<T>::tmat3(tmat4<T> const &mat) :
+		tmat3(
+		mat.h[0], mat.h[4], mat.h[8]
+		mat.h[1], mat.h[5], mat.h[9],
+		mat.h[2], mat.h[6], mat.h[10]) {
 	}
 }
 

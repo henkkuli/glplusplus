@@ -53,8 +53,8 @@ namespace math {
 		}
 
 		// Cast constructors
-		tvec2(tvec3<T> const &vec);
-		tvec2(tvec4<T> const &vec);
+		explicit tvec2(tvec3<T> const &vec);
+		explicit tvec2(tvec4<T> const &vec);
 
 		// Some vector specific functions
 		T length2() const {
@@ -153,8 +153,8 @@ namespace math {
 		}
 
 		// Cast constructors
-		tvec3(tvec2<T> const &vec);
-		tvec3(tvec4<T> const &vec);
+		explicit tvec3(tvec2<T> const &vec);
+		explicit tvec3(tvec4<T> const &vec);
 
 		// Some vector specific functions
 		T length2() const {
@@ -266,8 +266,8 @@ namespace math {
 		}
 
 		// Cast constructors
-		tvec4(tvec2<T> const &vec);
-		tvec4(tvec3<T> const &vec);
+		explicit tvec4(tvec2<T> const &vec);
+		explicit tvec4(tvec3<T> const &vec);
 
 		// Some vector specific functions
 		T length2() const {
@@ -374,7 +374,7 @@ namespace math {
 	private:
 	};
 
-	// Constructors for type casting
+	// Cast constructors
 	template<typename T>
 	inline tvec2<T>::tvec2(tvec3<T> const &vec) {
 		this->x = vec.x;
